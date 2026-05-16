@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { generateNewsletter, type NewsletterStyle } from "@/lib/openai";
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -31,15 +35,21 @@ export async function POST(req: NextRequest) {
     }
 
     // Get or create user in our DB
-    let dbUser = await prisma.user.findUnique({ where: { clerkId: userId } });
+    let dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+    });
 
     if (!dbUser) {
-      // User hasn't been created yet (webhook might not have fired)
-      // Create them with default free plan
-      return NextResponse.json(
-        { error: "Account not fully set up. Please try signing out and back in." },
-        { status: 400 }
-      );
+      // Auto-create user on first API call
+      dbUser = await prisma.user.create({
+        data: {
+          id: user.id,
+          email: user.email || "",
+          name: user.user_metadata?.full_name || "",
+          subscription: "free",
+          credits: 3,
+        },
+      });
     }
 
     // Check credits
@@ -51,7 +61,8 @@ export async function POST(req: NextRequest) {
       if (newsletterCount >= dbUser.credits) {
         return NextResponse.json(
           {
-            error: "You've used all your free credits. Upgrade to Pro for unlimited newsletters!",
+            error:
+              "You've used all your free credits. Upgrade to Pro for unlimited newsletters!",
           },
           { status: 403 }
         );

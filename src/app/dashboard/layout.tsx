@@ -1,13 +1,16 @@
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
-import { currentUser } from "@clerk/nextjs/server";
+import { createClient } from "@/lib/supabase/server";
+import SignOutButton from "./sign-out-button";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await currentUser();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -25,7 +28,14 @@ export default async function DashboardLayout({
             >
               + New Newsletter
             </Link>
-            <UserButton userProfileUrl="/user" />
+            <div className="flex items-center gap-2">
+              {user?.email && (
+                <span className="text-xs text-gray-400 hidden sm:block">
+                  {user.email}
+                </span>
+              )}
+              <SignOutButton />
+            </div>
           </div>
         </div>
       </header>

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useState, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 type NewsletterStyle = "professional" | "casual" | "storytelling";
@@ -25,18 +25,32 @@ const STYLE_OPTIONS: { value: NewsletterStyle; label: string; desc: string }[] =
 ];
 
 export default function GeneratePage() {
-  const { isSignedIn } = useUser();
   const router = useRouter();
+  const supabase = createClient();
 
   const [bulletPoints, setBulletPoints] = useState("");
   const [style, setStyle] = useState<NewsletterStyle>("professional");
   const [result, setResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
-  if (!isSignedIn) {
-    router.push("/sign-in");
-    return null;
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        router.push("/sign-in");
+      } else {
+        setIsAuthenticated(true);
+      }
+    });
+  }, []);
+
+  if (isAuthenticated === null) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <p className="text-gray-400">Loading...</p>
+      </div>
+    );
   }
 
   async function handleGenerate() {
@@ -105,7 +119,7 @@ export default function GeneratePage() {
             <textarea
               value={bulletPoints}
               onChange={(e) => setBulletPoints(e.target.value)}
-              placeholder={`Example:\n• Launched our new AI feature this week\n• Customer feedback has been amazing\n• Planning the next release for Q3`}
+              placeholder={`Example:\nLaunched our new AI feature this week\nCustomer feedback has been amazing\nPlanning the next release for Q3`}
               className="w-full h-48 p-4 border border-gray-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
 

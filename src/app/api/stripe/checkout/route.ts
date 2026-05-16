@@ -1,26 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { createClient } from "@/lib/supabase/server";
 import { createCheckoutSession } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await auth();
-    if (!userId) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check content type to handle both form POST and JSON
-    let email = "";
-    const contentType = req.headers.get("content-type") || "";
-
-    if (contentType.includes("application/json")) {
-      const body = await req.json();
-      email = body.email;
-    }
-
     const dbUser = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { id: user.id },
     });
 
     if (!dbUser) {
@@ -28,8 +23,8 @@ export async function POST(req: NextRequest) {
     }
 
     const sessionUrl = await createCheckoutSession(
-      email || dbUser.email,
-      userId
+      dbUser.email,
+      user.id
     );
 
     if (!sessionUrl) {

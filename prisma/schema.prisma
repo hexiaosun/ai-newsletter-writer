@@ -8,25 +8,23 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String    @id @default(uuid())
   email         String    @unique
   name          String?
-  clerkId       String    @unique
   subscription  String    @default("free") // "free" | "pro"
-  credits       Int       @default(3)       // free users get 3 credits/month
-  resetAt       DateTime  @default(now())
+  credits       Int       @default(3)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   newsletters   Newsletter[]
 }
 
 model Newsletter {
-  id          String    @id @default(cuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
-  topic       String
-  style       String    @default("professional") // "professional" | "casual" | "storytelling"
-  content     String
-  bulletPoints String   // JSON array stored as string
-  createdAt   DateTime  @default(now())
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  topic         String
+  style         String    @default("professional")
+  content       String
+  bulletPoints  String   // JSON array stored as string
+  createdAt     DateTime  @default(now())
 }

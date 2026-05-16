@@ -1,25 +1,47 @@
 import Link from "next/link";
-import { currentUser } from "@clerk/nextjs/server";
+import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 
 export default async function DashboardPage() {
-  const user = await currentUser();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) return null;
 
-  const dbUser = await prisma.user.findUnique({
-    where: { clerkId: user.id },
+  // Find or create the user in our database
+  let dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
     include: { newsletters: { orderBy: { createdAt: "desc" }, take: 5 } },
   });
 
-  const newsletterCount = dbUser?.newsletters.length || 0;
-  const creditsUsed = dbUser?.credits !== undefined ? Math.min(newsletterCount, dbUser.credits) : 0;
-  const totalCredits = dbUser?.subscription === "pro" ? "Unlimited" : (dbUser?.credits || 3);
-  const plan = dbUser?.subscription === "pro" ? "Pro" : "Free";
+  if (!dbUser) {
+    dbUser = await prisma.user.create({
+      data: {
+        id: user.id,
+        email: user.email || "",
+        name: user.user_metadata?.full_name || "",
+        subscription: "free",
+        credits: 3,
+      },
+      include: { newsletters: { orderBy: { createdAt: "desc" }, take: 5 } },
+    });
+  }
+
+  const newsletterCount = dbUser.newsletters.length;
+  const totalCredits =
+    dbUser.subscription === "pro" ? "Unlimited" : dbUser.credits;
+  const plan = dbUser.subscription === "pro" ? "Pro" : "Free";
+  const remaining =
+    typeof totalCredits === "string"
+      ? totalCredits
+      : Math.max(0, totalCredits - newsletterCount);
 
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">
-        Welcome back{user.firstName ? `, ${user.firstName}` : ""} 👋
+        Welcome back{user.user_metadata?.full_name ? `, ${user.user_metadata.full_name}` : ""} 👋
       </h1>
 
       {/* Stats Cards */}
@@ -28,9 +50,9 @@ export default async function DashboardPage() {
           <p className="text-sm text-gray-500 mb-1">Plan</p>
           <p className="text-2xl font-bold">{plan}</p>
           {plan === "Free" && (
-            <Link href="#pricing" className="text-sm text-primary hover:underline mt-1 block">
+            <a href="#pricing" className="text-sm text-primary hover:underline mt-1 block">
               Upgrade to Pro →
-            </Link>
+            </a>
           )}
         </div>
         <div className="bg-white p-6 rounded-xl border border-gray-200">
@@ -39,9 +61,7 @@ export default async function DashboardPage() {
         </div>
         <div className="bg-white p-6 rounded-xl border border-gray-200">
           <p className="text-sm text-gray-500 mb-1">Credits Remaining</p>
-          <p className="text-2xl font-bold">
-            {typeof totalCredits === "string" ? totalCredits : totalCredits - newsletterCount}
-          </p>
+          <p className="text-2xl font-bold">{remaining}</p>
         </div>
       </div>
 
@@ -56,7 +76,7 @@ export default async function DashboardPage() {
             Write New
           </Link>
         </div>
-        {dbUser?.newsletters && dbUser.newsletters.length > 0 ? (
+        {dbUser.newsletters.length > 0 ? (
           <div className="divide-y divide-gray-100">
             {dbUser.newsletters.map((nl) => (
               <div key={nl.id} className="p-4 hover:bg-gray-50 transition">

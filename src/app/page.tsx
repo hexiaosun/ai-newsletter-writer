@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { auth } from "@clerk/nextjs/server";
+import { getCurrentUser } from "@/lib/supabase/server";
 
 export default async function HomePage() {
-  const { userId } = await auth();
-  const isSignedIn = !!userId;
+  const user = await getCurrentUser();
+  const isSignedIn = !!user;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -192,14 +192,23 @@ export default async function HomePage() {
                   </li>
                 ))}
               </ul>
-              <form action="/api/stripe/checkout" method="POST">
-                <button
-                  type="submit"
-                  className="w-full py-3 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition"
+              {isSignedIn ? (
+                <form action="/api/stripe/checkout" method="POST">
+                  <button
+                    type="submit"
+                    className="w-full py-3 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition"
+                  >
+                    Upgrade to Pro →
+                  </button>
+                </form>
+              ) : (
+                <Link
+                  href="/sign-up"
+                  className="block text-center w-full py-3 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition"
                 >
-                  Upgrade to Pro →
-                </button>
-              </form>
+                  Sign Up First
+                </Link>
+              )}
             </div>
           </div>
         </div>

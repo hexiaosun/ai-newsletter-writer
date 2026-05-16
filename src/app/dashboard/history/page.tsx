@@ -1,22 +1,20 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { formatDate, truncate } from "@/lib/utils";
 import Link from "next/link";
 
 export default async function HistoryPage() {
-  const user = await currentUser();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   if (!user) return null;
 
-  const dbUser = await prisma.user.findUnique({
-    where: { clerkId: user.id },
-    include: {
-      newsletters: {
-        orderBy: { createdAt: "desc" },
-      },
-    },
+  const newsletters = await prisma.newsletter.findMany({
+    where: { userId: user.id },
+    orderBy: { createdAt: "desc" },
   });
-
-  const newsletters = dbUser?.newsletters || [];
 
   return (
     <div>
