@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
+
+function getStripe(): Stripe {
+  const key = process.env.STRIPE_SECRET_KEY;
+  if (!key) throw new Error("STRIPE_SECRET_KEY is not configured");
+  return new Stripe(key, { apiVersion: "2026-04-22.dahlia", typescript: true });
+}
 
 export async function POST(req: NextRequest) {
   try {
+    const stripe = getStripe();
     const body = await req.text();
     const signature = req.headers.get("stripe-signature") || "";
 

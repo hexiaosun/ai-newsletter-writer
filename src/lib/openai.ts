@@ -1,14 +1,17 @@
 import OpenAI from "openai";
 
-const apiKey = process.env.OPENAI_API_KEY;
+// Lazy initialization — only create the client when actually needed
+function getOpenAI(): OpenAI {
+  const apiKey = process.env.OPENAI_API_KEY;
 
-if (!apiKey) {
-  console.warn("OPENAI_API_KEY is not set. AI generation will not work.");
+  if (!apiKey) {
+    throw new Error(
+      "OPENAI_API_KEY is not configured. AI generation requires an OpenAI API key."
+    );
+  }
+
+  return new OpenAI({ apiKey });
 }
-
-export const openai = new OpenAI({
-  apiKey: apiKey || "sk-dummy",
-});
 
 export const STYLES = {
   professional: {
@@ -34,6 +37,7 @@ export async function generateNewsletter(
   bulletPoints: string[],
   style: NewsletterStyle = "professional"
 ): Promise<string> {
+  const openai = getOpenAI();
   const styleInfo = STYLES[style];
 
   const prompt = `You are an expert newsletter writer. Create a compelling newsletter based on the following bullet points.
