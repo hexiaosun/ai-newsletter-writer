@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { prisma } from "@/lib/prisma";
+import { updateUserSubscription } from "@/lib/db";
 
 function getStripe(): Stripe {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -33,17 +33,9 @@ export async function POST(req: NextRequest) {
       case "checkout.session.completed": {
         const session = event.data.object;
         const userId = session.client_reference_id;
-        const customerEmail = session.customer_details?.email;
 
         if (userId) {
-          await prisma.user.update({
-            where: { id: userId },
-            data: {
-              subscription: "pro",
-              credits: 99999,
-            },
-          });
-
+          await updateUserSubscription(userId, "pro");
           console.log(`User ${userId} upgraded to Pro`);
         }
         break;
@@ -51,7 +43,6 @@ export async function POST(req: NextRequest) {
 
       case "customer.subscription.updated":
       case "customer.subscription.deleted": {
-        // Handle subscription changes if needed
         break;
       }
 

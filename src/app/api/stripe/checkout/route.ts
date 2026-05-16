@@ -1,31 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createCheckoutSession } from "@/lib/stripe";
-import { prisma } from "@/lib/prisma";
+import { getUserById } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
-    });
+    const dbUser = await getUserById(user.id);
 
     if (!dbUser) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const sessionUrl = await createCheckoutSession(
-      dbUser.email,
-      user.id
-    );
+    const sessionUrl = await createCheckoutSession(dbUser.email, user.id);
 
     if (!sessionUrl) {
       return NextResponse.json(

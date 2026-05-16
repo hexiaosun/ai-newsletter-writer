@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { upsertUser } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,17 +12,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await prisma.user.upsert({
-      where: { id },
-      update: { email, name: name || "" },
-      create: {
-        id,
-        email,
-        name: name || "",
-        subscription: "free",
-        credits: 3,
-      },
-    });
+    const user = await upsertUser({ id, email, name });
 
     return NextResponse.json({ success: true, user });
   } catch (error) {

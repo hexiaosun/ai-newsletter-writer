@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { prisma } from "@/lib/prisma";
 import { generateNewsletter, type NewsletterStyle } from "@/lib/openai";
+import {
+  getUserById,
+  getOrCreateUser,
+  countNewsletters,
+  createNewsletter,
+} from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -34,31 +37,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get or create user in our DB
-    let dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
-    });
-
+    // Get or create user
+    let dbUser = await getUserById(user.id);
     if (!dbUser) {
-      // Auto-create user on first API call
-      dbUser = await prisma.user.create({
-        data: {
-          id: user.id,
-          email: user.email || "",
-          name: user.user_metadata?.full_name || "",
-          subscription: "free",
-          credits: 3,
-        },
-      });
+      dbUser = await getOrCreateUser(
+        user.id,
+        user.email || "",
+        user.user_metadata?.full_name as string
+      );
     }
 
     // Check credits
     if (dbUser.subscription === "free") {
-      const newsletterCount = await prisma.newsletter.count({
-        where: { userId: dbUser.id },
-      });
-
-      if (newsletterCount >= dbUser.credits) {
+      const count = await countNewsletters(dbUser.id);
+      if (count >= dbUser.credits) {
         return NextResponse.json(
           {
             error:
@@ -73,14 +65,12 @@ export async function POST(req: NextRequest) {
     const content = await generateNewsletter(bulletPoints, style);
 
     // Save to database
-    await prisma.newsletter.create({
-      data: {
-        userId: dbUser.id,
-        topic: bulletPoints[0],
-        style,
-        content,
-        bulletPoints: JSON.stringify(bulletPoints),
-      },
+    await createNewsletter({
+      userId: dbUser.id,
+      topic: bulletPoints[0],
+      style,
+      content,
+      bulletPoints,
     });
 
     return NextResponse.json({ content, success: true });
