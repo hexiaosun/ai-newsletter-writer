@@ -61,6 +61,9 @@ export default async function DashboardLayout({
           <Link href="/dashboard/history" className="text-sm py-3 text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 transition">
             {t("dash.history")}
           </Link>
+          <Link href="/dashboard/settings" className="text-sm py-3 text-gray-600 hover:text-gray-900 border-b-2 border-transparent hover:border-gray-300 transition">
+            ⚙️ {t("dash.settings")}
+          </Link>
         </div>
       </div>
 

@@ -202,6 +202,19 @@ body {
   line-height: 1.8;
   color: #374151;
 }
+@media (max-width: 767px) {
+  .newsletter-preview {
+    font-size: 0.75rem;
+    line-height: 1.6;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .newsletter-preview h1 {
+    font-size: 1rem;
+  }
+  .newsletter-preview h2 {
+    font-size: 0.9rem;
+  }
+}
 .newsletter-preview h1 {
   font-size: 1.5rem;
   font-weight: 700;

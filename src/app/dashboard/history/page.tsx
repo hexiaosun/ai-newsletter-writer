@@ -44,7 +44,7 @@ export default async function HistoryPage() {
         <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
           {newsletters.map((nl: NewsletterRecord) => (
             <details key={nl.id} className="group">
-              <summary className="p-3 md:p-4 hover:bg-gray-50 cursor-pointer flex items-center justify-between list-none">
+              <summary className="p-4 md:p-4 hover:bg-gray-50 cursor-pointer flex items-center justify-between list-none min-h-[48px] md:min-h-0">
                 <div className="flex-1 min-w-0">
                   <p className="text-xs md:text-sm font-medium text-gray-900 truncate">
                     {truncate(nl.topic || nl.content, 80)}

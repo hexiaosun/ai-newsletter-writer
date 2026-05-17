@@ -95,6 +95,25 @@ const dict: Record<Locale, Record<string, string>> = {
     "signup.hasAccount": "Already have an account?",
     "signup.signin": "Sign in",
 
+    // Settings
+    "settings.title": "Settings",
+    "settings.profile": "Profile",
+    "settings.noName": "No name set",
+    "settings.memberSince": "Member since",
+    "settings.userId": "User ID",
+    "settings.subscription": "Subscription & Usage",
+    "settings.currentPlan": "Current Plan",
+    "settings.upgrade": "Upgrade to Pro →",
+    "settings.active": "Active",
+    "settings.usage": "Usage",
+    "settings.totalGenerated": "Generated",
+    "settings.remaining": "Remaining",
+    "settings.plan": "Plan",
+    "settings.danger": "Danger Zone",
+    "settings.dangerDesc": "Permanently delete your account and all data. This action cannot be undone.",
+    "settings.confirmDelete": "Are you sure? This will permanently delete your account and all newsletters.",
+    "settings.deleteAccount": "Delete Account",
+
     // Dashboard
     "dash.welcome": "Welcome back",
     "dash.plan": "Plan",
@@ -108,6 +127,7 @@ const dict: Record<Locale, Record<string, string>> = {
     "dash.new": "+ New Newsletter",
     "dash.overview": "Overview",
     "dash.generate": "Generate",
+    "dash.settings": "Settings",
     "dash.history": "History",
 
     // Generate
@@ -250,6 +270,25 @@ const dict: Record<Locale, Record<string, string>> = {
     "signup.hasAccount": "已有账号？",
     "signup.signin": "登录",
 
+    // Settings
+    "settings.title": "设置",
+    "settings.profile": "个人信息",
+    "settings.noName": "未设置昵称",
+    "settings.memberSince": "注册时间",
+    "settings.userId": "用户 ID",
+    "settings.subscription": "订阅与用量",
+    "settings.currentPlan": "当前方案",
+    "settings.upgrade": "升级到专业版 →",
+    "settings.active": "已激活",
+    "settings.usage": "使用情况",
+    "settings.totalGenerated": "已生成",
+    "settings.remaining": "剩余次数",
+    "settings.plan": "方案",
+    "settings.danger": "危险区",
+    "settings.dangerDesc": "永久删除你的账号及所有数据。此操作不可撤销。",
+    "settings.confirmDelete": "确定吗？这将永久删除你的账号和所有 Newsletter。",
+    "settings.deleteAccount": "删除账号",
+
     // Dashboard
     "dash.welcome": "欢迎回来",
     "dash.plan": "当前方案",
@@ -263,6 +302,7 @@ const dict: Record<Locale, Record<string, string>> = {
     "dash.new": "+ 新建 Newsletter",
     "dash.overview": "概览",
     "dash.generate": "生成",
+    "dash.settings": "设置",
     "dash.history": "历史记录",
 
     // Generate

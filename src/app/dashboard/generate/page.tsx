@@ -111,7 +111,7 @@ export default function GeneratePage() {
             />
 
             <label className="block text-xs md:text-sm font-medium mt-4 md:mt-6 mb-2 md:mb-3">{t("gen.style")}</label>
-            <div className="grid grid-cols-1 gap-1.5 md:gap-2">
+            <div className="grid grid-cols-3 gap-1.5 md:grid-cols-1 md:gap-2">
               {STYLE_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
@@ -123,7 +123,7 @@ export default function GeneratePage() {
                   }`}
                 >
                   <span className="font-medium">{t(`gen.style.${opt.value}`)}</span>
-                  <span className="text-gray-400 ml-1 md:ml-2">{t(`gen.style.${opt.value}.desc`)}</span>
+                  <span className="text-gray-400 ml-1 md:ml-2 hidden md:inline">{t(`gen.style.${opt.value}.desc`)}</span>
                 </button>
               ))}
             </div>
