@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { getTranslations, getLocaleFromCookies } from "@/lib/i18n";
 import LanguageToggle from "@/components/language-toggle";
+import DemoSection from "@/components/DemoSection";
 
 export default async function HomePage() {
   const user = await getCurrentUser();
@@ -144,47 +145,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Demo/Preview Section */}
-      <section className="py-16 md:py-28 bg-surface">
-        <div className="max-w-7xl mx-auto px-5 md:px-8">
-          <div className="text-center mb-10 md:mb-20">
-            <h2 className="text-2xl md:text-5xl font-extrabold text-gray-900 mb-3 md:mb-4">
-              {t("demo.title")}
-            </h2>
-            <p className="text-gray-500 text-sm md:text-lg max-w-xl mx-auto px-2">
-              {t("demo.subtitle")}
-            </p>
-          </div>
-          <div className="max-w-4xl mx-auto bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden">
-            <div className="flex items-center gap-1.5 md:gap-2 px-4 md:px-5 py-3 md:py-4 bg-gray-50 border-b border-gray-100">
-              <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-red-400" />
-              <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-amber-400" />
-              <div className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-green-400" />
-              <span className="text-[10px] md:text-xs text-gray-400 ml-2 md:ml-3 font-medium">
-                NewsletterCraft — {t("demo.badge")}
-              </span>
-            </div>
-            <div className="p-4 md:p-10 newsletter-preview text-xs md:text-base">
-              <p className="text-primary font-bold text-sm md:text-lg mb-1">
-                Subject: 🚀 {t("demo.subject")}
-              </p>
-              <p className="text-gray-400 text-[10px] md:text-xs mb-4 md:mb-6">{t("demo.dear")}</p>
-              <p>{t("demo.p1")}</p>
-              <h2>{t("demo.h2.1")}</h2>
-              <p>{t("demo.p2")}</p>
-              <h2>{t("demo.h2.2")}</h2>
-              <p>{t("demo.p3")}</p>
-              <h2>{t("demo.h2.3")}</h2>
-              <p>{t("demo.p4")}</p>
-              <p className="mt-4 md:mt-6 font-medium">
-                <Link href={btnCta} className="text-primary hover:underline text-xs md:text-base">
-                  {t("demo.cta")}
-                </Link>
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <DemoSection />
 
       {/* Pricing Section */}
       <section id="pricing" className="py-20 md:py-28 bg-white">
